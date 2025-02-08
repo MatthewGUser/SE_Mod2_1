@@ -56,7 +56,7 @@ SE_Advanced-API-Development_V2/
 1. Clone the repository:
 
 ```bash
-git clone <repository-url>
+git clone https://github.com/MatthewGUser/SE_Advanced-API-Development_V2.git
 cd SE_Advanced-API-Development_V2
 ```
 
@@ -89,7 +89,7 @@ python app.py
 The API will be available at
 `http://localhost:5000`
 
-### API Endpoints
+## API Endpoints
 
 ### Users
 
