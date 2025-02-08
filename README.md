@@ -43,6 +43,8 @@ SE_Advanced-API-Development_V2/
 │   ├── models.py
 │   └── utils/
 │       └── util.py
+├── instance/
+│   └── app.db
 ├── .env
 ├── advanced-api-development-V2.postman_collection.json
 ├── app.py
