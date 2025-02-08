@@ -93,32 +93,34 @@ The API will be available at
 
 ### Users
 
+- `GET /users?page=1&per_page=10` - List all users (paginated)
+- `GET /users/my-tickets` - Get user's service tickets
 - `POST /users/register` - Register new user
 - `POST /users/login` - User login
-- `GET /users` - List all users (paginated)
-- `GET /users/my-tickets` - Get user's service tickets
 - `PUT /users/<id>` - Update user
 - `DELETE /users/<id>` - Delete user
 
 ### Service Tickets
 
-- `POST /service-tickets` - Create ticket
-- `GET /service-tickets` - List tickets (paginated)
+- `GET /service-tickets?page=1&per_page=10` - List tickets (paginated)
 - `GET /service-tickets/<id>` - Get single ticket
+- `POST /service-tickets` - Create ticket
 - `PUT /service-tickets/<id>` - Update ticket
 - `DELETE /service-tickets/<id>` - Delete ticket
 
 ### Mechanics
 
+- `GET /mechanics?page=1&per_page=10` - List mechanics (paginated)
+- `GET /mechanics` - List mechanics
 - `POST /mechanics` - Add mechanic
-- `GET /mechanics` - List mechanics (paginated)
 - `PUT /mechanics/<id>` - Update mechanic
 - `DELETE /mechanics/<id>` - Delete mechanic
 
 ### Inventory
 
+- `GET /inventory?page=1&per_page=10` - List parts (paginated)
+- `GET /inventory` - List parts
 - `POST /inventory` - Add part
-- `GET /inventory` - List parts (paginated)
 - `PUT /inventory/<id>` - Update part
 - `DELETE /inventory/<id>` - Delete part
 
