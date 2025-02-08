@@ -93,34 +93,34 @@ The API will be available at
 
 ### Users
 
-`POST /users/register` - Register new user
-`POST /users/login` - User login
-`GET /users` - List all users (paginated)
-`GET /users/my-tickets` - Get user's service tickets
-`PUT /users/<id>` - Update user
-`DELETE /users/<id>` - Delete user
+- `POST /users/register` - Register new user
+- `POST /users/login` - User login
+- `GET /users` - List all users (paginated)
+- `GET /users/my-tickets` - Get user's service tickets
+- `PUT /users/<id>` - Update user
+- `DELETE /users/<id>` - Delete user
 
 ### Service Tickets
 
-`POST /service-tickets` - Create ticket
-`GET /service-tickets` - List tickets (paginated)
-`GET /service-tickets/<id>` - Get single ticket
-`PUT /service-tickets/<id>` - Update ticket
-`DELETE /service-tickets/<id>` - Delete ticket
+- `POST /service-tickets` - Create ticket
+- `GET /service-tickets` - List tickets (paginated)
+- `GET /service-tickets/<id>` - Get single ticket
+- `PUT /service-tickets/<id>` - Update ticket
+- `DELETE /service-tickets/<id>` - Delete ticket
 
 ### Mechanics
 
-`POST /mechanics` - Add mechanic
-`GET /mechanics` - List mechanics (paginated)
-`PUT /mechanics/<id>` - Update mechanic
-`DELETE /mechanics/<id>` - Delete mechanic
+- `POST /mechanics` - Add mechanic
+- `GET /mechanics` - List mechanics (paginated)
+- `PUT /mechanics/<id>` - Update mechanic
+- `DELETE /mechanics/<id>` - Delete mechanic
 
 ### Inventory
 
-`POST /inventory` - Add part
-`GET /inventory` - List parts (paginated)
-`PUT /inventory/<id>` - Update part
-`DELETE /inventory/<id>` - Delete part
+- `POST /inventory` - Add part
+- `GET /inventory` - List parts (paginated)
+- `PUT /inventory/<id>` - Update part
+- `DELETE /inventory/<id>` - Delete part
 
 ## Authentication
 
