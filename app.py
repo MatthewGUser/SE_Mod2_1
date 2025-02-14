@@ -25,6 +25,6 @@ if __name__ == '__main__':
     print(f"Running in {os.getenv('FLASK_ENV', 'dev')} mode")
     app.run(debug=True, port=5000)
 
-# ! -----------------------------------
-# ! |     FIX END POINTS (KEY)        |
-# ! -----------------------------------
+# ! -------------------------------------------
+# ! |       FINISH MECHANICS AND TICKETS      |
+# ! -------------------------------------------

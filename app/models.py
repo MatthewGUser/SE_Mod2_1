@@ -38,7 +38,7 @@ class User(db.Model):
         )
 
     def to_dict(self):
-        """Convert user to dictionary"""
+        """Convert user to dictionary with role information"""
         return {
             'id': self.id,
             'name': self.name,

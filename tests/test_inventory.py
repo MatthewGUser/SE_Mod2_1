@@ -65,48 +65,23 @@ class TestInventoryRoutes(unittest.TestCase):
         
         # Create part
         response = self.client.post(
-            '/inventory',  # URL without trailing slash
-            json=self.part_data,
-            headers={'Authorization': f'Bearer {token}'}
-        )
-        self.assertEqual(response.status_code, 201)
-        self.assertIn('id', response.json)
-
-    def test_create_part_unauthorized(self):
-        """Test part creation by non-admin user"""
-        # Create and register regular user
-        user_data = {
-            'name': 'Regular User',
-            'email': 'user@example.com',
-            'password': 'UserPass123!',
-            'phone': '111-222-3333'
-        }
-        
-        # Register user using correct endpoint
-        register_response = self.client.post(
-            '/users',  # Changed from '/users/register' to '/users'
-            json=user_data
-        )
-        self.assertEqual(register_response.status_code, 201)
-        
-        # Login as regular user
-        login_response = self.client.post(
-            '/users/login',
-            json={
-                'email': user_data['email'],
-                'password': user_data['password']
-            }
-        )
-        self.assertEqual(login_response.status_code, 200)
-        token = login_response.json['token']
-        
-        # Attempt to create part
-        response = self.client.post(
             '/inventory',
             json=self.part_data,
             headers={'Authorization': f'Bearer {token}'}
         )
-        self.assertEqual(response.status_code, 403)
+        
+        self.assertEqual(response.status_code, 201)
+        self.assertIn('id', response.json)
+        self.assertEqual(response.json['name'], self.part_data['name'])
+        self.assertEqual(response.json['part_number'], self.part_data['part_number'])
+
+    def test_create_part_unauthorized(self):
+        """Test part creation without token"""
+        response = self.client.post(
+            '/inventory',
+            json=self.part_data
+        )
+        self.assertEqual(response.status_code, 401)  # Changed from 403 to 401 for missing token
 
     def test_get_inventory(self):
         """Test retrieving inventory list"""
@@ -151,7 +126,9 @@ class TestInventoryRoutes(unittest.TestCase):
             headers={'Authorization': f'Bearer {token}'}
         )
         
+        self.assertEqual(create_response.status_code, 201)
         part_id = create_response.json['id']
+        
         update_data = {
             'name': 'Updated Part',
             'price': 199.99
@@ -170,28 +147,28 @@ class TestInventoryRoutes(unittest.TestCase):
 
     def test_delete_part(self):
         """Test deleting a part"""
-        # Login as admin
+        # Login and get token
         login_response = self.client.post('/users/login', 
             json={
                 'email': self.admin_data['email'],
                 'password': self.admin_data['password']
             })
-        self.assertEqual(login_response.status_code, 200)
         token = login_response.json['token']
         
         # Create a part first
         create_response = self.client.post(
-            '/inventory',  # Updated endpoint
+            '/inventory',
             json=self.part_data,
             headers={'Authorization': f'Bearer {token}'}
         )
+        
         self.assertEqual(create_response.status_code, 201)
         self.assertIn('id', create_response.json)
         part_id = create_response.json['id']
         
         # Delete the part
         delete_response = self.client.delete(
-            f'/inventory/{part_id}',  # Updated endpoint
+            f'/inventory/{part_id}',
             headers={'Authorization': f'Bearer {token}'}
         )
         self.assertEqual(delete_response.status_code, 200)

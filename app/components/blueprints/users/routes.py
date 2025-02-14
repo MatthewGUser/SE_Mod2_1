@@ -6,6 +6,13 @@ from app.components.schemas.user import user_schema, users_schema, login_schema
 from app.components.schemas.service_ticket import service_tickets_schema
 from app import limiter, cache
 from flask_jwt_extended import create_access_token, jwt_required, get_jwt_identity
+from functools import wraps
+
+def make_cache_key(*args, **kwargs):
+    """Generate a cache key based on the route and query parameters"""
+    path = request.path
+    args = str(hash(frozenset(request.args.items())))
+    return f'view/{path}:{args}'
 
 # Remove the duplicate Blueprint creation
 # user_bp = Blueprint('user', __name__)  # Remove this line
@@ -25,12 +32,7 @@ def login():
                 'message': 'Invalid email or password!'
             }), 401
         
-        # Include is_admin in token claims
-        additional_claims = {'is_admin': user.is_admin}
-        access_token = create_access_token(
-            identity=user.id,
-            additional_claims=additional_claims
-        )
+        access_token = create_access_token(identity=user.id)
         
         return jsonify({
             'message': 'Login successful',
@@ -92,27 +94,32 @@ def register():
         }), 400
 
 @user_bp.get('')  # This route is at '/users' (since blueprint has a prefix)
-@cache.cached(timeout=300)
+@jwt_required()
+@cache.cached(timeout=300, key_prefix=make_cache_key)
 def get_users():
-    """Get paginated list of users"""
-    page = request.args.get('page', 1, type=int)
-    per_page = request.args.get('per_page', 10, type=int)
-    
-    pagination = User.query.paginate(
-        page=page,
-        per_page=per_page,
-        error_out=False
-    )
-    
-    return jsonify({
-        'users': users_schema.dump(pagination.items),
-        'total': pagination.total,
-        'pages': pagination.pages,
-        'current_page': page,
-        'per_page': per_page,
-        'has_next': pagination.has_next,
-        'has_prev': pagination.has_prev
-    })
+    """Get list of users - accessible to any authenticated user"""
+    try:
+        page = request.args.get('page', 1, type=int)
+        per_page = request.args.get('per_page', 10, type=int)
+        
+        pagination = User.query.paginate(
+            page=page,
+            per_page=per_page,
+            error_out=False
+        )
+        
+        return jsonify({
+            'items': users_schema.dump(pagination.items),
+            'page': page,
+            'pages': pagination.pages,
+            'per_page': per_page,
+            'total': pagination.total
+        }), 200
+    except Exception as e:
+        return jsonify({
+            'error': 'Failed to retrieve users',
+            'message': str(e)
+        }), 500
 
 @user_bp.route('/my-tickets')
 @jwt_required()
@@ -127,29 +134,36 @@ def get_my_tickets():
 @user_bp.route('/<int:id>', methods=['PUT'])
 @jwt_required()
 def update_user(id):
-    """Update user details"""
+    """Update user details - only owner can update their profile"""
     try:
-        # Verify that the authenticated user matches the target user id
         current_user_id = get_jwt_identity()
-        if current_user_id != id:
-            return jsonify({'message': 'Unauthorized'}), 403
+        
+        # Convert both IDs to strings for comparison
+        if str(current_user_id) != str(id):
+            return jsonify({'message': 'Can only update your own profile'}), 403
             
-        # Retrieve the user and update provided fields
         user = User.query.get_or_404(id)
         data = request.get_json()
         
-        # Update only non-empty fields
-        if 'name' in data and data['name']:
+        # Validate the update data
+        if not data:
+            return jsonify({'error': 'No data provided'}), 400
+        
+        # Update allowed fields
+        if 'name' in data:
             user.name = data['name']
-        if 'phone' in data and data['phone']:
+        if 'phone' in data:
             user.phone = data['phone']
+        if 'password' in data:
+            user.set_password(data['password'])
             
         db.session.commit()
+        cache.delete(make_cache_key())
         
-        # Clear cached data for this user
-        cache.delete_memoized(get_user, id)
-        
-        return jsonify(user_schema.dump(user)), 200
+        return jsonify({
+            'message': 'Profile updated successfully',
+            'user': user_schema.dump(user)
+        }), 200
         
     except Exception as e:
         db.session.rollback()
@@ -160,20 +174,16 @@ def update_user(id):
 def delete_user(id):
     """Delete user account"""
     try:
-        # Ensure that the authenticated user is allowed to delete this account
-        current_user_id = get_jwt_identity()
-        if current_user_id != id:
-            return jsonify({'message': 'Unauthorized'}), 403
-            
-        # Retrieve and delete the user
         user = User.query.get_or_404(id)
         db.session.delete(user)
         db.session.commit()
         
-        # Clear cached data for this user
-        cache.delete_memoized(get_user, id)
+        # Clear cached data
+        cache.delete(make_cache_key())
         
-        return '', 204
+        return jsonify({
+            'message': 'User deleted successfully'
+        }), 200
         
     except Exception as e:
         db.session.rollback()
@@ -182,19 +192,17 @@ def delete_user(id):
 @user_bp.route('/<int:id>', methods=['GET'])
 @jwt_required()
 def get_user(id):
-    """Get user details"""
+    """Get user details - accessible to any authenticated user"""
     try:
-        # Get user from database
-        user = User.query.get_or_404(id)
-        
-        # Return only the fields needed for the test
-        return jsonify({
-            'name': user.name,
-            'email': user.email
-        }), 200
-        
+        user = User.query.get(id)
+        if not user:
+            return jsonify({
+                'message': 'User not found',
+                'user_id': id
+            }), 404
+        return jsonify(user_schema.dump(user)), 200
     except Exception as e:
         return jsonify({
-            'error': 'Failed to retrieve user',
+            'error': 'Database error',
             'message': str(e)
-        }), 400
+        }), 500
