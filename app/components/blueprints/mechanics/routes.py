@@ -1,11 +1,11 @@
 from flask import jsonify, request
 from flask_jwt_extended import jwt_required, get_jwt_identity, verify_jwt_in_request, get_jwt
 from marshmallow import ValidationError
+from sqlalchemy.exc import SQLAlchemyError, IntegrityError
 from . import mechanic_bp
 from app.models import Mechanic, ServiceTicket, User, db
 from app.components.schemas.mechanic import mechanic_schema, mechanics_schema
 from app import limiter, cache
-from sqlalchemy.exc import IntegrityError
 
 # Create mechanic
 @mechanic_bp.route('', methods=['POST'])
@@ -13,11 +13,6 @@ from sqlalchemy.exc import IntegrityError
 def create_mechanic():
     """Create a new mechanic"""
     try:
-        current_user = db.session.get(User, get_jwt_identity())
-        
-        if not current_user or not current_user.is_admin:
-            return jsonify({'message': 'Admin privileges required'}), 403
-
         data = request.get_json()
         if not data:
             return jsonify({'message': 'No input data provided'}), 400
@@ -41,7 +36,8 @@ def create_mechanic():
         return jsonify({'message': 'Database error', 'error': str(e)}), 500
 
 # Get all mechanics with pagination
-@mechanic_bp.get('')
+@mechanic_bp.route('', methods=['GET'])
+@jwt_required()
 @cache.cached(timeout=300)
 def get_mechanics():
     """Get paginated list of mechanics"""
@@ -163,12 +159,6 @@ def get_assigned_tickets():  # Removed mechanic_id parameter
 def assign_mechanic_to_ticket(mechanic_id, ticket_id):
     """Assign mechanic to service ticket"""
     try:
-        # Get current user
-        current_user = db.session.get(User, get_jwt_identity())
-        
-        if not current_user or not current_user.is_admin:
-            return jsonify({'message': 'Admin privileges required'}), 403
-
         # Get mechanic and ticket
         mechanic = db.session.get(Mechanic, mechanic_id)
         if not mechanic:
@@ -178,24 +168,13 @@ def assign_mechanic_to_ticket(mechanic_id, ticket_id):
         if not ticket:
             return jsonify({'message': 'Service ticket not found'}), 404
 
-        # Check if ticket is already assigned
-        if ticket in mechanic.service_tickets:
-            return jsonify({
-                'message': 'Ticket already assigned to this mechanic',
-                'mechanic': mechanic.to_dict()
-            }), 200
-
         # Assign ticket to mechanic
         mechanic.service_tickets.append(ticket)
         db.session.commit()
 
-        # Get updated mechanic data including tickets
-        mechanic_data = mechanic.to_dict()
-        mechanic_data['tickets'] = [t.id for t in mechanic.service_tickets]
-        
         return jsonify({
             'message': 'Mechanic assigned successfully',
-            'mechanic': mechanic_data
+            'mechanic': mechanic.to_dict()
         }), 200
         
     except Exception as e:
