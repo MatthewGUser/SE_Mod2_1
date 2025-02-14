@@ -4,9 +4,10 @@ from dotenv import load_dotenv
 load_dotenv()
 
 class Config:
-    SECRET_KEY = os.getenv('SECRET_KEY', 'dev')
+    SECRET_KEY = 'dev-key-for-testing'
     SQLALCHEMY_TRACK_MODIFICATIONS = False
-    SQLALCHEMY_DATABASE_URI = os.getenv('SQLALCHEMY_DATABASE_URI', 'sqlite:///app.db')
+    SQLALCHEMY_DATABASE_URI = os.getenv('DATABASE_URL', 'sqlite:///app.db')
+    JWT_SECRET_KEY = 'jwt-secret-key-for-testing'
     
     # Rate limiting configuration - using memory storage for simplicity
     RATELIMIT_STORAGE_URL = "memory://"
@@ -19,18 +20,28 @@ class Config:
 
 class DevelopmentConfig(Config):
     DEBUG = True
-
-class TestingConfig(Config):
-    TESTING = True
-    SQLALCHEMY_DATABASE_URI = os.getenv('SQLALCHEMY_DATABASE_URI_TEST', 'sqlite:///test.db')
+    DEVELOPMENT = True
 
 class ProductionConfig(Config):
     DEBUG = False
     SQLALCHEMY_DATABASE_URI = os.getenv('SQLALCHEMY_DATABASE_URI_PROD')
 
+class TestingConfig(Config):  # Changed from TestConfig to TestingConfig
+    TESTING = True
+    SQLALCHEMY_DATABASE_URI = 'sqlite:///:memory:'
+    SQLALCHEMY_TRACK_MODIFICATIONS = False
+    SECRET_KEY = 'test-secret'
+    JWT_SECRET_KEY = 'jwt-test-secret'
+    JWT_TOKEN_LOCATION = ['headers']
+    JWT_HEADER_NAME = 'Authorization'
+    JWT_HEADER_TYPE = 'Bearer'
+    JWT_ACCESS_TOKEN_EXPIRES = False
+    CACHE_TYPE = 'NullCache'
+    RATELIMIT_ENABLED = False
+
 config = {
-    'dev': DevelopmentConfig,
-    'test': TestingConfig,
-    'prod': ProductionConfig,
+    'development': DevelopmentConfig,
+    'testing': TestingConfig,  # Updated to match new class name
+    'production': ProductionConfig,
     'default': DevelopmentConfig
 }

@@ -1,7 +1,7 @@
 import os
 from app import create_app, db
 from config import config
-from app.models import User, Mechanic, ServiceTicket  # Changed from Customer to User
+from app.models import User, Mechanic, ServiceTicket
 
 def create_flask_app():
     """Factory function to create and configure the Flask application"""
@@ -24,3 +24,7 @@ app = create_flask_app()
 if __name__ == '__main__':
     print(f"Running in {os.getenv('FLASK_ENV', 'dev')} mode")
     app.run(debug=True, port=5000)
+
+# ! -----------------------------------
+# ! |     FIX END POINTS (KEY)        |
+# ! -----------------------------------

@@ -4,15 +4,17 @@ from datetime import date, datetime
 from typing import List
 from werkzeug.security import generate_password_hash, check_password_hash
 from . import db
+from flask_jwt_extended import create_access_token
 
 class User(db.Model):
-    __tablename__ = "users"
-
-    id: Mapped[int] = mapped_column(primary_key=True)
-    name: Mapped[str] = mapped_column(db.String(100), nullable=False)
-    email: Mapped[str] = mapped_column(db.String(150), unique=True, nullable=False)
-    password_hash: Mapped[str] = mapped_column(db.String(200), nullable=False)
-    phone: Mapped[str] = mapped_column(db.String(150), unique=True, nullable=False)
+    __tablename__ = 'users'
+    
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(100), nullable=False)
+    email = db.Column(db.String(120), unique=True, nullable=False)
+    password_hash = db.Column(db.String(256), nullable=False)
+    phone = db.Column(db.String(20), nullable=False)  # Remove unique constraint
+    is_admin = db.Column(db.Boolean, default=False)
 
     # Update relationship to include cascade
     service_tickets: Mapped[List["ServiceTicket"]] = relationship(
@@ -26,6 +28,26 @@ class User(db.Model):
     def check_password(self, password):
         return check_password_hash(self.password_hash, password)
 
+    def get_token(self):
+        """Generate JWT token for user"""
+        return create_access_token(
+            identity=str(self.id),
+            additional_claims={
+                'is_admin': bool(self.is_admin)
+            }
+        )
+
+    def to_dict(self):
+        """Convert user to dictionary"""
+        return {
+            'id': self.id,
+            'name': self.name,
+            'email': self.email,
+            'phone': self.phone,
+            'is_admin': self.is_admin,
+            'service_tickets': [ticket.to_dict() for ticket in self.service_tickets]
+        }
+
 # Junction table for mechanics and service tickets
 mechanic_service_tickets = Table(
     'mechanic_service_tickets',
@@ -36,18 +58,23 @@ mechanic_service_tickets = Table(
 
 class Mechanic(db.Model):
     __tablename__ = 'mechanics'
-
+    
     id: Mapped[int] = mapped_column(primary_key=True)
     name: Mapped[str] = mapped_column(db.String(100), nullable=False)
-    email: Mapped[str] = mapped_column(db.String(120), unique=True, nullable=False)
+    specialty: Mapped[str] = mapped_column(db.String(100))
     phone: Mapped[str] = mapped_column(db.String(20), nullable=False)
-    salary: Mapped[float] = mapped_column(db.Float, nullable=False)
+    
+    # Relationships
+    service_tickets = relationship('ServiceTicket', secondary='mechanic_service_tickets',
+                                 back_populates='mechanics')
 
-    # Add relationship to service tickets
-    service_tickets: Mapped[List["ServiceTicket"]] = relationship(
-        secondary=mechanic_service_tickets,
-        back_populates="mechanics"
-    )
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'name': self.name,
+            'specialty': self.specialty,
+            'phone': self.phone
+        }
 
     def __repr__(self):
         return f'<Mechanic {self.name}>'
@@ -79,14 +106,35 @@ class Inventory(db.Model):
 
 class ServiceTicket(db.Model):
     __tablename__ = 'service_tickets'
-
-    id: Mapped[int] = mapped_column(primary_key=True)
-    VIN: Mapped[str] = mapped_column(db.String(17), nullable=False)
-    description: Mapped[str] = mapped_column(db.Text, nullable=False)
-    service_date: Mapped[datetime] = mapped_column(db.Date, nullable=False)
-    user_id: Mapped[int] = mapped_column(db.Integer, ForeignKey('users.id'))
+    
+    id = db.Column(db.Integer, primary_key=True)
+    title = db.Column(db.String(100), nullable=False)
+    description = db.Column(db.Text, nullable=False)
+    status = db.Column(db.String(20), nullable=False)
+    priority = db.Column(db.String(20), nullable=False)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
     # Relationships
     user = relationship("User", back_populates="service_tickets")
     mechanics = relationship("Mechanic", secondary=mechanic_service_tickets, back_populates="service_tickets")
     parts = relationship("Inventory", secondary=ticket_parts, back_populates="service_tickets")
+
+class Part(db.Model):
+    __tablename__ = 'parts'
+    
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(100), nullable=False)
+    part_number = db.Column(db.String(50), unique=True, nullable=False)
+    price = db.Column(db.Float, nullable=False)
+    quantity = db.Column(db.Integer, default=0)
+    
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'name': self.name,
+            'part_number': self.part_number,
+            'price': float(self.price),
+            'quantity': self.quantity
+        }

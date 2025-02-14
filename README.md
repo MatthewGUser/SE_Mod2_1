@@ -21,33 +21,37 @@ A Flask-based REST API for managing an auto service center, including customers,
 ```
 SE_Advanced-API-Development_V2/
 ├── app/
-│   ├── blueprints/
-│   │   ├── users/
-│   │   │   ├── __init__.py
-│   │   │   └── routes.py
-│   │   ├── mechanics/
-│   │   │   ├── __init__.py
-│   │   │   └── routes.py
-│   │   ├── service_tickets/
-│   │   │   ├── __init__.py
-│   │   │   └── routes.py
-│   │   └── inventory/
-│   │       ├── __init__.py
-│   │       └── routes.py
-│   ├── schemas/
-│   │   ├── __init__.py
-│   │   ├── inventory.py
-│   │   ├── mechanic.py
-│   │   ├── service_ticket.py
-│   │   └── user.py
-│   ├── models.py
-│   └── utils/
-│       └── util.py
+│   ├── components/
+|   │   ├── blueprints/
+|   │   │   ├── users/
+|   │   │   │   ├── __init__.py
+|   │   │   │   └── routes.py
+|   │   │   ├── mechanics/
+|   │   │   │   ├── __init__.py
+|   │   │   │   └── routes.py
+|   │   │   ├── service_tickets/
+|   │   │   │   ├── __init__.py
+|   │   │   │   └── routes.py
+|   │   │   └── inventory/
+|   │   │       ├── __init__.py
+|   │   │       └── routes.py
+|   │   └── schemas/
+|   │       ├── __init__.py
+|   │       ├── inventory.py
+|   │       ├── mechanic.py
+|   │       ├── service_ticket.py
+|   │       └── user.py
+|   ├── static/
+|   │   └── swagger.yaml
+|   ├──utils/
+│   │   └── util.py
+│   ├── extensions.py
+│   └── models.py
 ├── instance/
 │   └── app.db
 ├── .env
-├── advanced-api-development-V2.postman_collection.json
 ├── app.py
+├── collection.json
 ├── config.py
 ├── README.md
 └── requirements.txt
