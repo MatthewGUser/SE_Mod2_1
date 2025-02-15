@@ -19,7 +19,7 @@ A Flask-based REST API for managing an auto service center, including customers,
 ## Project Structure
 
 ```
-SE_Advanced-API-Development_V2/
+SE_MOD2_1/
 ├── app/
 │   ├── components/
 |   │   ├── blueprints/
@@ -47,6 +47,12 @@ SE_Advanced-API-Development_V2/
 │   │   └── util.py
 │   ├── extensions.py
 │   └── models.py
+├── tests/
+│   ├── __init__.py
+│   ├── test_inventory.py
+│   ├── test_mechanics.py
+│   ├── test_service_tickets.py
+│   └── test_users.py
 ├── instance/
 │   └── app.db
 ├── .env
@@ -62,8 +68,8 @@ SE_Advanced-API-Development_V2/
 1. Clone the repository:
 
 ```bash
-git clone https://github.com/MatthewGUser/SE_Advanced-API-Development_V2.git
-cd SE_Advanced-API-Development_V2
+git clone https://github.com/MatthewGUser/SE_Mod2_1.git
+cd SE_Mod2_1
 ```
 
 2. Create and activate virtual environment:
@@ -91,6 +97,34 @@ set FLASK_ENV=development
 ```
 python app.py
 ```
+
+## Testing the Application
+
+Run all tests:
+
+```bash
+python -m unittest discover tests -v
+```
+
+Run specific test files:
+
+```bash
+python -m unittest tests/test_users.py -v
+python -m unittest tests/test_service_tickets.py -v
+python -m unittest tests/test_mechanics.py -v
+python -m unittest tests/test_inventory.py -v
+```
+
+The `-v` flag provides verbose output showing each test case's result.
+
+Test coverage includes:
+
+- User authentication and authorization
+- CRUD operations for all resources
+- Rate limiting functionality
+- Data validation
+- Relationship management
+- Error handling
 
 The API will be available at
 `http://localhost:5000`

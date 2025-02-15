@@ -1,882 +1,357 @@
-swagger: "2.0"
+openapi: 3.0.0
 info:
- title: "Auto Shop API"
- description: "API for managing an auto repair shop's mechanics, service tickets, and inventory"
- version: "1.0.0"
-host: "127.0.0.1:5000"
-schemes:
- - "http"
-consumes:
- - "application/json"
-produces:
- - "application/json"
-x-cors: true # Enable CORS in Swagger UI
-x-swagger-pipe: "cors" # Add CORS headers to all responses
-
-securityDefinitions:
- bearerAuth:
-  type: apiKey
-  name: Authorization
-  in: header
-  description: "JWT Authentication. Example: 'Bearer {token}'"
-
-definitions:
- LoginCredentials:
-  type: "object"
-  properties:
-   email:
-    type: "string"
-    format: "email"
-    example: "admin@test.com"
-   password:
-    type: "string"
-    format: "password"
-    example: "admin123"
-  required:
-   - email
-   - password
-
- LoginResponse:
-  type: "object"
-  properties:
-   token:
-    type: "string"
-    example: "eyJ0eXAiOiJKV1QiLCJhbGc..."
-   message:
-    type: "string"
-    example: "Successfully logged in"
-   user:
-    type: "object"
-    properties:
-     id:
-      type: "integer"
-      example: 1
-     name:
-      type: "string"
-      example: "Admin User"
-     email:
-      type: "string"
-      format: "email"
-      example: "admin@test.com"
-
- RegisterUser:
-  type: "object"
-  properties:
-   name:
-    type: "string"
-    example: "John Doe"
-   email:
-    type: "string"
-    format: "email"
-    example: "john@example.com"
-   password:
-    type: "string"
-    format: "password"
-    example: "securepass123"
-   phone:
-    type: "string"
-    example: "123-456-7890"
-  required:
-   - name
-   - email
-   - password
-
- UserResponse:
-  type: "object"
-  properties:
-   id:
-    type: "integer"
-    example: 1
-   name:
-    type: "string"
-    example: "John Doe"
-   email:
-    type: "string"
-    format: "email"
-    example: "john@example.com"
-   phone:
-    type: "string"
-    example: "123-456-7890"
-   service_tickets:
-    type: "array"
-    items:
-     type: "object"
-     properties:
-      id:
-       type: "integer"
-       example: 1
-      VIN:
-       type: "string"
-       example: "1HGCM82633A123456"
-      status:
-       type: "string"
-       enum: ["pending", "in_progress", "completed"]
-
- ServiceTicketBase:
-  type: "object"
-  properties:
-   title:
-    type: "string"
-    example: "Test Ticket"
-   description:
-    type: "string"
-    example: "Oil change and tire rotation"
-   status:
-    type: "string"
-    enum: ["pending", "in_progress", "completed"]
-    example: "pending"
-   priority:
-    type: "string"
-    enum: ["low", "normal", "high"]
-    example: "normal"
-   mechanic_ids:
-    type: "array"
-    items:
-     type: "integer"
-    example: [1, 2]
-   part_ids:
-    type: "array"
-    items:
-     type: "integer"
-    example: [1, 3]
-  required:
-   - title
-   - description
-   - status
-   - priority
-
- ServiceTicketResponse:
-  type: "object"
-  properties:
-   id:
-    type: "integer"
-    example: 1
-   title:
-    type: "string"
-    example: "Test Ticket"
-   description:
-    type: "string"
-    example: "Oil change and tire rotation"
-   status:
-    type: "string"
-    example: "pending"
-   priority:
-    type: "string"
-    example: "normal"
-   created_at:
-    type: "string"
-    format: "date-time"
-    example: "2024-02-15T01:41:03.896166"
-   updated_at:
-    type: "string"
-    format: "date-time"
-    example: "2024-02-15T01:41:03.896166"
-   user:
-    type: "object"
-    properties:
-     id:
-      type: "integer"
-      example: 1
-     name:
-      type: "string"
-      example: "John Doe"
-     email:
-      type: "string"
-      format: "email"
-      example: "john@example.com"
-     phone:
-      type: "string"
-      example: "123-456-7890"
-   mechanics:
-    type: "array"
-    items:
-     $ref: "#/definitions/MechanicBase"
-   parts:
-    type: "array"
-    items:
-     $ref: "#/definitions/InventoryResponse"
-
- MechanicBase:
-  type: "object"
-  properties:
-   name:
-    type: "string"
-    example: "John Smith"
-   email:
-    type: "string"
-    format: "email"
-    example: "john.smith@autoshop.com"
-   phone:
-    type: "string"
-    example: "123-456-7890"
-   salary:
-    type: "number"
-    format: "float"
-    example: 75000.00
-  required:
-   - name
-   - email
-   - phone
-   - salary
-
- InventoryBase:
-  type: "object"
-  properties:
-   name:
-    type: "string"
-    example: "Oil Filter"
-   price:
-    type: "number"
-    format: "float"
-    minimum: 0
-    example: 15.99
-  required:
-   - name
-   - price
-
- InventoryResponse:
-  type: "object"
-  properties:
-   id:
-    type: "integer"
-    example: 1
-   name:
-    type: "string"
-    example: "Oil Filter"
-   price:
-    type: "number"
-    format: "float"
-    example: 15.99
-   service_tickets:
-    type: "array"
-    items:
-     type: "object"
-     properties:
-      id:
-       type: "integer"
-       example: 1
-      VIN:
-       type: "string"
-       example: "1HGCM82633A123456"
-      description:
-       type: "string"
-       example: "Oil change"
-
+ title: advanced-api-development-V2
+ version: 1.0.0
+servers:
+ - url: http://{{base_url}}
+components:
+ securitySchemes:
+  bearerAuth:
+   type: http
+   scheme: bearer
+security:
+ - bearerAuth: []
+tags:
+ - name: Users
+ - name: Service Tickets
+ - name: Mechanics
+ - name: Inventory
 paths:
- /users/login:
-  post:
-   tags:
-    - "Users"
-   summary: "Login user"
-   description: "Authenticate user and get JWT token"
-   parameters:
-    - in: "body"
-      name: "credentials"
-      required: true
-      schema:
-       $ref: "#/definitions/LoginCredentials"
-   responses:
-    200:
-     description: "Successfully authenticated"
-     schema:
-      type: "object"
-      properties:
-       token:
-        type: "string"
-        example: "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9..."
-     x-swagger-js-auto-auth:
-      key: token
-      prefix: "Bearer "
-      location: header
-      name: Authorization
-    401:
-     description: "Invalid credentials"
-    500:
-     description: "Internal server error"
-     schema:
-      type: "object"
-      properties:
-       message:
-        type: "string"
-        example: "Internal server error"
  /users:
-  post:
+  get:
    tags:
-    - "Users"
-   summary: "Register new user"
-   description: "Create a new user account. Email must be unique."
+    - Users
+   summary: Paginated Users
+   security:
+    - bearerAuth: []
    parameters:
-    - in: "body"
-      name: "user"
-      description: "User registration information"
-      required: true
+    - name: page
+      in: query
       schema:
-       $ref: "#/definitions/RegisterUser"
-   responses:
-    201:
-     description: "User created successfully"
-     schema:
-      type: "object"
-      properties:
-       message:
-        type: "string"
-        example: "Successfully registered"
-       token:
-        type: "string"
-        example: "eyJ0eXAiOiJKV1QiLCJhbGc..."
-       user:
-        $ref: "#/definitions/UserResponse"
-    409:
-     description: "Email already exists"
-     schema:
-      type: "object"
-      properties:
-       message:
-        type: "string"
-        example: "Email already registered"
-
-  get:
-   tags:
-    - "Users"
-   summary: "Get all users"
-   description: "Retrieve list of all users. Requires admin privileges."
-   security:
-    - bearerAuth: []
-   responses:
-    200:
-     description: "Successfully retrieved users"
-     schema:
-      type: "array"
-      items:
-       $ref: "#/definitions/UserResponse"
-    401:
-     description: "Unauthorized - Invalid or missing token"
-    403:
-     description: "Forbidden - Not an admin user"
-
- /users/{id}:
-  parameters:
-   - in: path
-     name: id
-     type: integer
-     required: true
-     description: "User ID"
-  get:
-   tags:
-    - "Users"
-   summary: "Get user by ID"
-   description: "Retrieve a specific user's information"
-   security:
-    - bearerAuth: []
-   responses:
-    200:
-     description: "Successfully retrieved user"
-     schema:
-      $ref: "#/definitions/UserResponse"
-    404:
-     description: "User not found"
-  put:
-   tags:
-    - "Users"
-   summary: "Update user"
-   description: "Update user information. Users can only update their own information unless admin."
-   security:
-    - bearerAuth: []
-   parameters:
-    - in: "body"
-      name: "user"
-      description: "Updated user information"
-      required: true
+       type: integer
+      example: "1"
+    - name: per_page
+      in: query
       schema:
-       $ref: "#/definitions/RegisterUser"
+       type: integer
+      example: "10"
    responses:
-    200:
-     description: "User updated successfully"
-     schema:
-      $ref: "#/definitions/UserResponse"
-    403:
-     description: "Forbidden - Cannot update other users"
-    404:
-     description: "User not found"
-  delete:
-   tags:
-    - "Users"
-   summary: "Delete user"
-   description: "Delete a user account. Users can only delete their own account unless admin."
-   security:
-    - bearerAuth: []
-   responses:
-    204:
-     description: "User deleted successfully"
-    403:
-     description: "Forbidden - Cannot delete other users"
-    404:
-     description: "User not found"
-
- /service-tickets:
-  post:
-   tags:
-    - "Service Tickets"
-   summary: "Create new service ticket"
-   description: "Create a new service ticket with optional mechanic and part assignments"
-   security:
-    - bearerAuth: []
-   parameters:
-    - in: "body"
-      name: "ticket"
-      description: "Service ticket information"
-      required: true
-      schema:
-       $ref: "#/definitions/ServiceTicketBase"
-   responses:
-    201:
-     description: "Service ticket created successfully"
-     schema:
-      $ref: "#/definitions/ServiceTicketResponse"
-    400:
-     description: "Invalid input"
-     schema:
-      type: "object"
-      properties:
-       message:
-        type: "string"
-        example: "One or more mechanic IDs are invalid"
-    401:
-     description: "Unauthorized - Invalid or missing token"
-
-  get:
-   tags:
-    - "Service Tickets"
-   summary: "Get all service tickets"
-   description: "Get paginated list of service tickets for the authenticated user"
-   security:
-    - bearerAuth: []
-   parameters:
-    - in: "query"
-      name: "page"
-      type: "integer"
-      description: "Page number"
-      default: 1
-    - in: "query"
-      name: "per_page"
-      type: "integer"
-      description: "Items per page"
-      default: 10
-   responses:
-    200:
-     description: "Successfully retrieved tickets"
-     schema:
-      type: "object"
-      properties:
-       tickets:
-        type: "array"
-        items:
-         $ref: "#/definitions/ServiceTicketResponse"
-       total:
-        type: "integer"
-        example: 50
-       pages:
-        type: "integer"
-        example: 5
-       current_page:
-        type: "integer"
-        example: 1
-       per_page:
-        type: "integer"
-        example: 10
-       has_next:
-        type: "boolean"
-        example: true
-       has_prev:
-        type: "boolean"
-        example: false
- /mechanics:
-  post:
-   tags:
-    - "Mechanics"
-   summary: "Create new mechanic"
-   description: "Add a new mechanic to the system. Email must be unique."
-   security:
-    - bearerAuth: []
-   parameters:
-    - in: "body"
-      name: "mechanic"
-      description: "Mechanic information"
-      required: true
-      schema:
-       $ref: "#/definitions/MechanicBase"
-   responses:
-    201:
-     description: "Mechanic created successfully"
-     schema:
-      $ref: "#/definitions/MechanicBase"
-    400:
-     description: "Invalid input or duplicate email"
-     schema:
-      type: "object"
-      properties:
-       message:
-        type: "string"
-        example: "Email already registered"
-       error:
-        type: "string"
-        example: "duplicate_email"
-    401:
-     description: "Unauthorized - Invalid or missing token"
-
-  get:
-   tags:
-    - "Mechanics"
-   summary: "Get all mechanics"
-   description: "Get paginated list of mechanics"
-   parameters:
-    - in: "query"
-      name: "page"
-      type: "integer"
-      description: "Page number"
-      default: 1
-    - in: "query"
-      name: "per_page"
-      type: "integer"
-      description: "Items per page"
-      default: 10
-   responses:
-    200:
-     description: "Successfully retrieved mechanics"
-     schema:
-      type: "object"
-      properties:
-       mechanics:
-        type: "array"
-        items:
-         $ref: "#/definitions/MechanicBase"
-       total:
-        type: "integer"
-        example: 50
-       pages:
-        type: "integer"
-        example: 5
-       current_page:
-        type: "integer"
-        example: 1
-       per_page:
-        type: "integer"
-        example: 10
-       has_next:
-        type: "boolean"
-        example: true
-       has_prev:
-        type: "boolean"
-        example: false
-
- /mechanics/{id}:
-  parameters:
-   - in: path
-     name: id
-     type: integer
-     required: true
-     description: "Mechanic ID"
-
-  get:
-   tags:
-    - "Mechanics"
-   summary: "Get mechanic by ID"
-   description: "Retrieve a specific mechanic's information"
-   responses:
-    200:
-     description: "Successfully retrieved mechanic"
-     schema:
-      $ref: "#/definitions/MechanicBase"
-    404:
-     description: "Mechanic not found"
-
-  put:
-   tags:
-    - "Mechanics"
-   summary: "Update mechanic"
-   description: "Update mechanic information"
-   security:
-    - bearerAuth: []
-   parameters:
-    - in: "body"
-      name: "mechanic"
-      description: "Updated mechanic information"
-      required: true
-      schema:
-       $ref: "#/definitions/MechanicBase"
-   responses:
-    200:
-     description: "Mechanic updated successfully"
-     schema:
-      $ref: "#/definitions/MechanicBase"
-    404:
-     description: "Mechanic not found"
-    401:
-     description: "Unauthorized - Invalid or missing token"
-
-  delete:
-   tags:
-    - "Mechanics"
-   summary: "Delete mechanic"
-   description: "Delete a mechanic from the system"
-   security:
-    - bearerAuth: []
-   responses:
-    200:
-     description: "Mechanic deleted successfully"
-     schema:
-      type: "object"
-      properties:
-       message:
-        type: "string"
-        example: "Mechanic deleted successfully"
-    404:
-     description: "Mechanic not found"
-    401:
-     description: "Unauthorized - Invalid or missing token"
-
- /mechanics/tickets:
-  get:
-   tags:
-    - "Mechanics"
-   summary: "Get mechanic's assigned tickets"
-   description: "Get all service tickets assigned to the authenticated mechanic"
-   security:
-    - bearerAuth: []
-   responses:
-    200:
-     description: "Successfully retrieved tickets"
-     schema:
-      type: "object"
-      properties:
-       tickets:
-        type: "array"
-        items:
-         type: "object"
-         properties:
-          id:
-           type: "integer"
-           example: 1
-          VIN:
-           type: "string"
-           example: "1HGCM82633A123456"
-          description:
-           type: "string"
-           example: "Oil change and tire rotation"
-          service_date:
-           type: "string"
-           format: "date"
-           example: "2024-02-15"
-    401:
-     description: "Unauthorized - Invalid or missing token"
-    404:
-     description: "Mechanic not found"
- /inventory:
-  post:
-   tags:
-    - "Inventory"
-   summary: "Create new part"
-   description: "Add a new part to inventory"
-   security:
-    - bearerAuth: []
-   parameters:
-    - in: "body"
-      name: "part"
-      description: "Part information"
-      required: true
-      schema:
-       $ref: "#/definitions/InventoryBase"
-   responses:
-    201:
-     description: "Part created successfully"
-     schema:
-      $ref: "#/definitions/InventoryResponse"
-    400:
-     description: "Invalid input"
-     schema:
-      type: "object"
-      properties:
-       message:
-        type: "string"
-        example: "Database error occurred"
-       error:
-        type: "string"
-        example: "integrity_error"
-    401:
-     description: "Unauthorized - Invalid or missing token"
-
-  get:
-   tags:
-    - "Inventory"
-   summary: "Get all parts"
-   description: "Get paginated list of inventory parts"
-   parameters:
-    - in: "query"
-      name: "page"
-      type: "integer"
-      description: "Page number"
-      default: 1
-    - in: "query"
-      name: "per_page"
-      type: "integer"
-      description: "Items per page"
-      default: 10
-   responses:
-    200:
-     description: "Successfully retrieved parts"
-     schema:
-      type: "object"
-      properties:
-       parts:
-        type: "array"
-        items:
-         $ref: "#/definitions/InventoryResponse"
-       total:
-        type: "integer"
-        example: 50
-       pages:
-        type: "integer"
-        example: 5
-       current_page:
-        type: "integer"
-        example: 1
-       per_page:
-        type: "integer"
-        example: 10
-       has_next:
-        type: "boolean"
-        example: true
-       has_prev:
-        type: "boolean"
-        example: false
-
- /inventory/{part_id}:
-  parameters:
-   - in: path
-     name: part_id
-     type: integer
-     required: true
-     description: "Part ID"
-
-  put:
-   tags:
-    - "Inventory"
-   summary: "Update part"
-   description: "Update part information"
-   security:
-    - bearerAuth: []
-   parameters:
-    - in: "body"
-      name: "part"
-      description: "Updated part information"
-      required: true
-      schema:
-       $ref: "#/definitions/InventoryBase"
-   responses:
-    200:
-     description: "Part updated successfully"
-     schema:
-      $ref: "#/definitions/InventoryResponse"
-    400:
-     description: "Invalid input"
-     schema:
-      type: "object"
-      properties:
-       message:
-        type: "string"
-        example: "Database error occurred"
-    401:
-     description: "Unauthorized - Invalid or missing token"
-    404:
-     description: "Part not found"
-
-  delete:
-   tags:
-    - "Inventory"
-   summary: "Delete part"
-   description: "Delete a part from inventory"
-   security:
-    - bearerAuth: []
-   responses:
-    200:
-     description: "Part deleted successfully"
-     schema:
-      type: "object"
-      properties:
-       message:
-        type: "string"
-        example: "Part deleted successfully"
-    400:
-     description: "Part in use"
-     schema:
-      type: "object"
-      properties:
-       message:
-        type: "string"
-        example: "Cannot delete part that is used in service tickets"
-       ticket_count:
-        type: "integer"
-        example: 2
-    401:
-     description: "Unauthorized - Invalid or missing token"
-    404:
-     description: "Part not found"
-
- /protected-endpoint:
-  get:
-   tags:
-    - "SomeTag"
-   summary: "Protected endpoint"
-   description: "Example of a protected endpoint requiring authentication"
-   security:
-    - bearerAuth: []
-   responses:
-    200:
-     description: "Successfully accessed protected endpoint"
-     schema:
-      type: "object"
-      properties:
-       message:
-        type: "string"
-        example: "Access granted to protected endpoint"
-    401:
-     description: "Unauthorized - Invalid or missing token"
-     schema:
-      type: "object"
-      properties:
-       message:
-        type: "string"
-        example: "Invalid or missing authentication token"
-    403:
-     description: "Forbidden - Insufficient permissions"
-     schema:
-      type: "object"
-      properties:
-       message:
-        type: "string"
-        example: "You don't have permission to access this resource"
-
+    "200":
+     description: Successful response
+     content:
+      application/json: {}
  /users/my-tickets:
   get:
    tags:
-    - "Users"
-   summary: "Get user's tickets"
-   description: "Get all service tickets for the authenticated user"
+    - Users
+   summary: Get Tickets
    security:
     - bearerAuth: []
    responses:
-    200:
-     description: "Successfully retrieved tickets"
-     schema:
-      type: "array"
-      items:
-       $ref: "#/definitions/ServiceTicketResponse"
-    401:
-     description: "Unauthorized - Invalid or missing token"
-
-# Add x-swagger configuration for auto-auth
-x-swagger-config:
- auth:
-  autoAuth: true
-  persistAuth: true
-  authName: bearerAuth
+    "200":
+     description: Successful response
+     content:
+      application/json: {}
+ /users/register:
+  post:
+   tags:
+    - Users
+   summary: Register
+   requestBody:
+    content:
+     application/json:
+      schema:
+       type: object
+       example:
+        name: Test User
+        email: user@example.com
+        password: password123
+        phone: 123-456-7890
+   responses:
+    "200":
+     description: Successful response
+     content:
+      application/json: {}
+ /users/login:
+  post:
+   tags:
+    - Users
+   summary: Login
+   requestBody:
+    content:
+     application/json:
+      schema:
+       type: object
+       example:
+        email: user@example.com
+        password: password123
+   responses:
+    "200":
+     description: Successful response
+     content:
+      application/json: {}
+ /users/1:
+  put:
+   tags:
+    - Users
+   summary: Update User
+   requestBody:
+    content:
+     application/json:
+      schema:
+       type: object
+       example:
+        name: Updated Name
+   security:
+    - bearerAuth: []
+   responses:
+    "200":
+     description: Successful response
+     content:
+      application/json: {}
+  delete:
+   tags:
+    - Users
+   summary: Delete User
+   security:
+    - bearerAuth: []
+   responses:
+    "200":
+     description: Successful response
+     content:
+      application/json: {}
+ /service-tickets:
+  get:
+   tags:
+    - Service Tickets
+   summary: Paginated Tickets
+   parameters:
+    - name: page
+      in: query
+      schema:
+       type: integer
+      example: "1"
+    - name: per_page
+      in: query
+      schema:
+       type: integer
+      example: "10"
+   responses:
+    "200":
+     description: Successful response
+     content:
+      application/json: {}
+  post:
+   tags:
+    - Service Tickets
+   summary: Create Ticket
+   requestBody:
+    content:
+     application/json:
+      schema:
+       type: object
+       example:
+        title: Test Ticket
+        description: Test Description
+        status: pending
+        priority: normal
+        mechanic_ids:
+         - 1
+        part_ids:
+         - 1
+   security:
+    - bearerAuth: []
+   responses:
+    "200":
+     description: Successful response
+     content:
+      application/json: {}
+ /service-tickets/1:
+  get:
+   tags:
+    - Service Tickets
+   summary: Get Ticket
+   responses:
+    "200":
+     description: Successful response
+     content:
+      application/json: {}
+  put:
+   tags:
+    - Service Tickets
+   summary: Update Ticket
+   requestBody:
+    content:
+     application/json:
+      schema:
+       type: object
+       example:
+        VIN: 1HGCM82633A123456
+        description: Updated oil change and tire rotation
+        service_date: "2024-02-15"
+        mechanic_ids:
+         - 1
+         - 2
+        part_ids:
+         - 1
+         - 3
+   security:
+    - bearerAuth: []
+   responses:
+    "200":
+     description: Successful response
+     content:
+      application/json: {}
+  delete:
+   tags:
+    - Service Tickets
+   summary: Delete Ticket
+   security:
+    - bearerAuth: []
+   responses:
+    "200":
+     description: Successful response
+     content:
+      application/json: {}
+ /mechanics:
+  get:
+   tags:
+    - Mechanics
+   summary: Paginated Mechanics
+   parameters:
+    - name: page
+      in: query
+      schema:
+       type: integer
+      example: "1"
+    - name: per_page
+      in: query
+      schema:
+       type: integer
+      example: "10"
+   responses:
+    "200":
+     description: Successful response
+     content:
+      application/json: {}
+  post:
+   tags:
+    - Mechanics
+   summary: Create Mechanic
+   requestBody:
+    content:
+     application/json:
+      schema:
+       type: object
+       example:
+        name: John Smith
+        specialty: Engine Repair
+        email: john@example.com
+        phone: 123-456-7890
+   security:
+    - bearerAuth: []
+   responses:
+    "200":
+     description: Successful response
+     content:
+      application/json: {}
+ /mechanics/1:
+  get:
+   tags:
+    - Mechanics
+   summary: Get Mechanic
+   responses:
+    "200":
+     description: Successful response
+     content:
+      application/json: {}
+  put:
+   tags:
+    - Mechanics
+   summary: Update Mechanic
+   requestBody:
+    content:
+     application/json:
+      schema:
+       type: object
+       example:
+        salary: 80000
+        phone: 987-654-3210
+   security:
+    - bearerAuth: []
+   responses:
+    "200":
+     description: Successful response
+     content:
+      application/json: {}
+  delete:
+   tags:
+    - Mechanics
+   summary: Delete Mechanic
+   security:
+    - bearerAuth: []
+   responses:
+    "200":
+     description: Successful response
+     content:
+      application/json: {}
+ /inventory:
+  get:
+   tags:
+    - Inventory
+   summary: Get All Parts
+   responses:
+    "200":
+     description: Successful response
+     content:
+      application/json: {}
+  post:
+   tags:
+    - Inventory
+   summary: Create Part
+   requestBody:
+    content:
+     application/json:
+      schema:
+       type: object
+       example:
+        name: Brake Pad
+        part_number: BP-2024-001
+        price: 45.99
+        quantity: 50
+   security:
+    - bearerAuth: []
+   responses:
+    "200":
+     description: Successful response
+     content:
+      application/json: {}
+ /inventory/1:
+  put:
+   tags:
+    - Inventory
+   summary: Update Part
+   requestBody:
+    content:
+     application/json:
+      schema:
+       type: object
+       example:
+        name: Updated Part Name
+        part_number: BP-2024-001
+        price: 29.99
+        quantity: 50
+   responses:
+    "200":
+     description: Successful response
+     content:
+      application/json: {}
+  delete:
+   tags:
+    - Inventory
+   summary: Delete Part
+   responses:
+    "200":
+     description: Successful response
+     content:
+      application/json: {}

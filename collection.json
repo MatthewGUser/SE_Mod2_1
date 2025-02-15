@@ -26,8 +26,12 @@
 						"header": [],
 						"url": {
 							"raw": "{{BASE_URL}}/users?page=1&per_page=10",
-							"host": ["{{BASE_URL}}"],
-							"path": ["users"],
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"users"
+							],
 							"query": [
 								{
 									"key": "page",
@@ -59,8 +63,13 @@
 						"header": [],
 						"url": {
 							"raw": "{{BASE_URL}}/users/my-tickets",
-							"host": ["{{BASE_URL}}"],
-							"path": ["users", "my-tickets"]
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"users",
+								"my-tickets"
+							]
 						}
 					},
 					"response": []
@@ -81,8 +90,13 @@
 						},
 						"url": {
 							"raw": "{{BASE_URL}}/users/register",
-							"host": ["{{BASE_URL}}"],
-							"path": ["users", "register"]
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"users",
+								"register"
+							]
 						}
 					},
 					"response": []
@@ -116,8 +130,13 @@
 						},
 						"url": {
 							"raw": "{{BASE_URL}}/users/login",
-							"host": ["{{BASE_URL}}"],
-							"path": ["users", "login"]
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"users",
+								"login"
+							]
 						}
 					},
 					"response": []
@@ -148,8 +167,13 @@
 						},
 						"url": {
 							"raw": "{{BASE_URL}}/users/1",
-							"host": ["{{BASE_URL}}"],
-							"path": ["users", "1"]
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"users",
+								"1"
+							]
 						}
 					},
 					"response": []
@@ -171,8 +195,13 @@
 						"header": [],
 						"url": {
 							"raw": "{{BASE_URL}}/users/1",
-							"host": ["{{BASE_URL}}"],
-							"path": ["users", "1"]
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"users",
+								"1"
+							]
 						}
 					},
 					"response": []
@@ -189,8 +218,12 @@
 						"header": [],
 						"url": {
 							"raw": "{{BASE_URL}}/service-tickets?page=1&per_page=10",
-							"host": ["{{BASE_URL}}"],
-							"path": ["service-tickets"],
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"service-tickets"
+							],
 							"query": [
 								{
 									"key": "page",
@@ -212,8 +245,13 @@
 						"header": [],
 						"url": {
 							"raw": "{{BASE_URL}}/service-tickets/1",
-							"host": ["{{BASE_URL}}"],
-							"path": ["service-tickets", "1"]
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"service-tickets",
+								"1"
+							]
 						}
 					},
 					"response": []
@@ -235,7 +273,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"VIN\": \"1HGCM82633A123456\",\r\n    \"description\": \"Oil change and tire rotation\",\r\n    \"service_date\": \"2024-02-15\",\r\n    \"mechanic_ids\": [1],\r\n    \"part_ids\": [1]\r\n}",
+							"raw": "{\r\n    \"title\": \"Test Ticket\",\r\n    \"description\": \"Test Description\",\r\n    \"status\": \"pending\",\r\n    \"priority\": \"normal\",\r\n    \"mechanic_ids\": [1],\r\n    \"part_ids\": [1]\r\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -244,8 +282,12 @@
 						},
 						"url": {
 							"raw": "{{BASE_URL}}/service-tickets",
-							"host": ["{{BASE_URL}}"],
-							"path": ["service-tickets"]
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"service-tickets"
+							]
 						}
 					},
 					"response": []
@@ -276,8 +318,13 @@
 						},
 						"url": {
 							"raw": "{{BASE_URL}}/service-tickets/1",
-							"host": ["{{BASE_URL}}"],
-							"path": ["service-tickets", "1"]
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"service-tickets",
+								"1"
+							]
 						}
 					},
 					"response": []
@@ -299,8 +346,13 @@
 						"header": [],
 						"url": {
 							"raw": "{{BASE_URL}}/service-tickets/1",
-							"host": ["{{BASE_URL}}"],
-							"path": ["service-tickets", "1"]
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"service-tickets",
+								"1"
+							]
 						}
 					},
 					"response": []
@@ -317,8 +369,12 @@
 						"header": [],
 						"url": {
 							"raw": "{{BASE_URL}}/mechanics?page=1&per_page=10",
-							"host": ["{{BASE_URL}}"],
-							"path": ["mechanics"],
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"mechanics"
+							],
 							"query": [
 								{
 									"key": "page",
@@ -340,8 +396,13 @@
 						"header": [],
 						"url": {
 							"raw": "{{BASE_URL}}/mechanics/1",
-							"host": ["{{BASE_URL}}"],
-							"path": ["mechanics", "1"]
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"mechanics",
+								"1"
+							]
 						}
 					},
 					"response": []
@@ -363,7 +424,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "\r\n{\r\n    \"name\": \"John Smith\",\r\n    \"email\": \"john@example.com\",\r\n    \"phone\": \"123-456-7890\",\r\n    \"salary\": 75000.00\r\n}",
+							"raw": "{\r\n    \"name\": \"John Smith\",\r\n    \"specialty\": \"Engine Repair\",\r\n    \"email\": \"john@example.com\",\r\n    \"phone\": \"123-456-7890\"\r\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -372,8 +433,12 @@
 						},
 						"url": {
 							"raw": "{{BASE_URL}}/mechanics",
-							"host": ["{{BASE_URL}}"],
-							"path": ["mechanics"]
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"mechanics"
+							]
 						}
 					},
 					"response": []
@@ -404,8 +469,13 @@
 						},
 						"url": {
 							"raw": "{{BASE_URL}}/mechanics/1",
-							"host": ["{{BASE_URL}}"],
-							"path": ["mechanics", "1"]
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"mechanics",
+								"1"
+							]
 						}
 					},
 					"response": []
@@ -427,8 +497,13 @@
 						"header": [],
 						"url": {
 							"raw": "{{BASE_URL}}/mechanics/1",
-							"host": ["{{BASE_URL}}"],
-							"path": ["mechanics", "1"]
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"mechanics",
+								"1"
+							]
 						}
 					},
 					"response": []
@@ -445,8 +520,12 @@
 						"header": [],
 						"url": {
 							"raw": "{{BASE_URL}}/inventory?page=1&per_page=10",
-							"host": ["{{BASE_URL}}"],
-							"path": ["inventory"],
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"inventory"
+							],
 							"query": [
 								{
 									"key": "page",
@@ -468,8 +547,12 @@
 						"header": [],
 						"url": {
 							"raw": "{{BASE_URL}}/inventory",
-							"host": ["{{BASE_URL}}"],
-							"path": ["inventory"]
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"inventory"
+							]
 						}
 					},
 					"response": []
@@ -491,7 +574,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"name\": \"Brake Pad\",\r\n    \"price\": 49.99\r\n}",
+							"raw": "{\r\n    \"name\": \"Brake Pad\",\r\n    \"part_number\": \"BP-2024-001\",\r\n    \"price\": 45.99,\r\n    \"quantity\": 50\r\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -500,8 +583,12 @@
 						},
 						"url": {
 							"raw": "{{BASE_URL}}/inventory",
-							"host": ["{{BASE_URL}}"],
-							"path": ["inventory"]
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"inventory"
+							]
 						}
 					},
 					"response": []
@@ -513,7 +600,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"name\": \"Updated Part Name\",\r\n    \"price\": 29.99\r\n}",
+							"raw": "{\r\n    \"name\": \"Updated Part Name\",\r\n    \"part_number\": \"BP-2024-001\",\r\n    \"price\": 29.99,\r\n    \"quantity\": 50\r\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -522,8 +609,13 @@
 						},
 						"url": {
 							"raw": "{{BASE_URL}}/inventory/1",
-							"host": ["{{BASE_URL}}"],
-							"path": ["inventory", "1"]
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"inventory",
+								"1"
+							]
 						}
 					},
 					"response": []
@@ -535,8 +627,13 @@
 						"header": [],
 						"url": {
 							"raw": "{{BASE_URL}}/inventory/1",
-							"host": ["{{BASE_URL}}"],
-							"path": ["inventory", "1"]
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"inventory",
+								"1"
+							]
 						}
 					},
 					"response": []
@@ -560,7 +657,9 @@
 			"script": {
 				"type": "text/javascript",
 				"packages": {},
-				"exec": [""]
+				"exec": [
+					""
+				]
 			}
 		},
 		{
@@ -568,13 +667,16 @@
 			"script": {
 				"type": "text/javascript",
 				"packages": {},
-				"exec": [""]
+				"exec": [
+					""
+				]
 			}
 		}
 	],
 	"variable": [
 		{
-			"value": "",
+			"key": "Collection ID",
+			"value": "25426986-dabc57b3-cc19-49c2-9ea5-33ba9dd8327d",
 			"type": "string"
 		}
 	]
