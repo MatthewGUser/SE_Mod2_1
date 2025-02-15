@@ -127,9 +127,15 @@ def get_users():
 @cache.memoize(300)
 def get_my_tickets():
     """Get all service tickets for the authenticated user"""
-    user_id = get_jwt_identity()
-    tickets = ServiceTicket.query.filter_by(user_id=user_id).all()
-    return jsonify(service_tickets_schema.dump(tickets))
+    try:
+        user_id = get_jwt_identity()
+        tickets = ServiceTicket.query.filter_by(user_id=user_id).all()
+        return jsonify(service_tickets_schema.dump(tickets)), 200
+    except Exception as e:
+        return jsonify({
+            'error': 'Failed to retrieve tickets',
+            'message': str(e)
+        }), 400
 
 @user_bp.route('/<int:id>', methods=['PUT'])
 @jwt_required()

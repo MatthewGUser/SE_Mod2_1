@@ -81,17 +81,11 @@ def get_mechanic(id):
 
 # Update mechanic
 @mechanic_bp.put('/<int:id>')
-@jwt_required()  # Changed from @token_required
+@jwt_required()
 @limiter.limit("20 per minute")
-def update_mechanic(id):  # Removed user_id parameter
+def update_mechanic(id):
     """Update mechanic information"""
     try:
-        current_user_id = get_jwt_identity()
-        current_user = User.query.get(current_user_id)
-        
-        if not current_user or not current_user.is_admin:
-            return jsonify({'message': 'Admin privileges required'}), 403
-
         mechanic = Mechanic.query.get_or_404(id)
         data = request.get_json()
         validated_data = mechanic_schema.load(data, partial=True)
@@ -107,17 +101,11 @@ def update_mechanic(id):  # Removed user_id parameter
 
 # Delete mechanic
 @mechanic_bp.delete('/<int:id>')
-@jwt_required()  # Changed from @token_required
+@jwt_required()
 @limiter.limit("10 per hour")
-def delete_mechanic(id):  # Removed user_id parameter
+def delete_mechanic(id):
     """Delete mechanic"""
     try:
-        current_user_id = get_jwt_identity()
-        current_user = User.query.get(current_user_id)
-        
-        if not current_user or not current_user.is_admin:
-            return jsonify({'message': 'Admin privileges required'}), 403
-
         mechanic = Mechanic.query.get_or_404(id)
         db.session.delete(mechanic)
         db.session.commit()

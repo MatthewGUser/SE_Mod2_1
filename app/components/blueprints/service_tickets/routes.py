@@ -1,6 +1,6 @@
 from flask import jsonify, request
 from flask_jwt_extended import jwt_required, get_jwt_identity
-from app.models import ServiceTicket, Mechanic, Inventory, db
+from app.models import ServiceTicket, Mechanic, Inventory, Part, db  # Added Part to imports
 from app.components.schemas.service_ticket import service_ticket_schema, service_tickets_schema
 from . import service_ticket_bp
 from app import cache, limiter
@@ -15,27 +15,47 @@ from marshmallow import ValidationError
 def create_ticket():
     """Create a new service ticket"""
     try:
-        # Validate and load data
         data = request.get_json()
-        validated_data = service_ticket_schema.load(data)
+        if not data:
+            return jsonify({'message': 'No input data provided'}), 400
+
+        user_id = get_jwt_identity()
+
+        # Set defaults for required fields
+        data.setdefault('title', f"Service Ticket - {datetime.now().strftime('%Y-%m-%d')}")
+        data.setdefault('status', 'pending')
+        data.setdefault('priority', 'normal')
         
-        # Create ticket
+        # Create ticket first
         ticket = ServiceTicket(
-            title=validated_data['title'],
-            description=validated_data['description'],
-            priority=validated_data['priority'],
-            status=validated_data['status'],
-            user_id=get_jwt_identity()
+            title=data['title'],
+            description=data['description'],
+            status=data['status'],
+            priority=data['priority'],
+            user_id=user_id  # Use the user_id from token
         )
-        
+
         db.session.add(ticket)
-        db.session.commit()
+        db.session.flush()
+
+        # Handle mechanics if provided
+        if 'mechanic_ids' in data:
+            mechanics = Mechanic.query.filter(Mechanic.id.in_(data['mechanic_ids'])).all()
+            for mechanic in mechanics:
+                ticket.mechanics.append(mechanic)
+
+        # Handle parts if provided
+        if 'part_ids' in data:
+            parts = Inventory.query.filter(Inventory.id.in_(data['part_ids'])).all()  # Changed from Part to Inventory
+            for part in parts:
+                ticket.parts.append(part)
         
-        # Return response with id
+        db.session.commit()
         result = service_ticket_schema.dump(ticket)
         return jsonify(result), 201
-        
+
     except ValidationError as e:
+        db.session.rollback()
         return jsonify({
             'error': 'Validation error',
             'message': str(e.messages)
@@ -78,13 +98,28 @@ def get_tickets():
 @jwt_required()
 def get_ticket(ticket_id):
     """Get a specific service ticket"""
-    user_id = get_jwt_identity()
-    ticket = ServiceTicket.query.get_or_404(ticket_id)
-    
-    if ticket.user_id != user_id:
-        return jsonify({'message': 'Unauthorized'}), 403
+    try:
+        user_id = get_jwt_identity()
         
-    return jsonify(service_ticket_schema.dump(ticket))
+        # Convert user_id to int if it's a string
+        if isinstance(user_id, str):
+            user_id = int(user_id)
+            
+        ticket = ServiceTicket.query.get_or_404(ticket_id)
+        
+        # Verify ownership
+        if ticket.user_id != user_id:
+            return jsonify({'message': 'Unauthorized'}), 403
+            
+        # Return single ticket with relationships
+        result = service_ticket_schema.dump(ticket)
+        return jsonify(result), 200
+        
+    except Exception as e:
+        return jsonify({
+            'error': 'Failed to retrieve ticket',
+            'message': str(e)
+        }), 400
 
 # Update ticket
 @service_ticket_bp.route('/<int:id>', methods=['PUT'])
@@ -127,20 +162,25 @@ def update_ticket(id):
 def delete_ticket(id):
     """Delete a service ticket"""
     try:
-        current_user_id = get_jwt_identity()
+        user_id = get_jwt_identity()
         ticket = ServiceTicket.query.get_or_404(id)
         
-        # Check if the token is an integer or string
-        if isinstance(current_user_id, str):
-            current_user_id = int(current_user_id)
+        # Convert user_id to int if needed
+        if isinstance(user_id, str):
+            user_id = int(user_id)
         
         # Verify ownership
-        if ticket.user_id != current_user_id:
+        if ticket.user_id != user_id:
             return jsonify({'message': 'Unauthorized'}), 403
-            
+        
+        # Remove relationships first
+        ticket.mechanics = []
+        ticket.parts = []
+        
         db.session.delete(ticket)
         db.session.commit()
         
+        # Return 204 No Content status code
         return '', 204
         
     except Exception as e:
