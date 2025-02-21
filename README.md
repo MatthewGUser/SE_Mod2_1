@@ -43,6 +43,8 @@ SE_MOD2_1/
 |   │       └── user.py
 |   ├── static/
 |   │   └── swagger.yaml
+|   ├── templates/
+|   │   └── swagger.html
 |   ├──utils/
 │   │   └── util.py
 │   ├── extensions.py
@@ -163,6 +165,38 @@ The API will be available at
 - `POST /inventory` - Add part
 - `PUT /inventory/<id>` - Update part
 - `DELETE /inventory/<id>` - Delete part
+
+## API Documentation
+
+The API documentation is available through Swagger UI at:
+
+```
+http://localhost:5000/docs
+```
+
+To access the documentation:
+
+1. Start the Flask application:
+
+```bash
+python app.py
+```
+
+2. Open your browser and navigate to `http://localhost:5000/docs`
+3. You can now:
+   - View all available endpoints
+   - Test endpoints directly from the browser
+   - See request/response schemas
+   - Authenticate using JWT tokens
+   - Download OpenAPI specification
+
+The documentation includes:
+
+- Complete endpoint specifications
+- Request/response examples
+- Authentication requirements
+- Schema definitions
+- Error responses
 
 ## Authentication
 

@@ -1,14 +1,116 @@
 openapi: 3.0.0
 info:
- title: advanced-api-development-V2
+ title: Auto Shop API
  version: 1.0.0
+ description: API for managing auto service tickets, mechanics, and inventory
 servers:
- - url: http://{{base_url}}
+ - url: http://localhost:5000
+   description: Development server
 components:
  securitySchemes:
   bearerAuth:
    type: http
    scheme: bearer
+ schemas:
+  ServiceTicket:
+   type: object
+   properties:
+    id:
+     type: integer
+     example: 1
+    title:
+     type: string
+     example: "Oil Change Service"
+    description:
+     type: string
+     example: "Regular maintenance oil change"
+    status:
+     type: string
+     enum: [pending, in_progress, completed]
+     example: "pending"
+    priority:
+     type: string
+     enum: [low, normal, high]
+     example: "normal"
+    user_id:
+     type: integer
+     example: 1
+    created_at:
+     type: string
+     format: date-time
+    updated_at:
+     type: string
+     format: date-time
+    mechanics:
+     type: array
+     items:
+      $ref: "#/components/schemas/Mechanic"
+    parts:
+     type: array
+     items:
+      $ref: "#/components/schemas/Inventory"
+  Mechanic:
+   type: object
+   properties:
+    id:
+     type: integer
+     example: 1
+    name:
+     type: string
+     example: "John Smith"
+    specialty:
+     type: string
+     example: "Engine Repair"
+    email:
+     type: string
+     format: email
+     example: "john@example.com"
+    phone:
+     type: string
+     example: "123-456-7890"
+    salary:
+     type: number
+     format: float
+     example: 75000.00
+    created_at:
+     type: string
+     format: date-time
+    updated_at:
+     type: string
+     format: date-time
+    service_tickets:
+     type: array
+     items:
+      $ref: "#/components/schemas/ServiceTicket"
+  Inventory:
+   type: object
+   properties:
+    id:
+     type: integer
+     example: 1
+    name:
+     type: string
+     example: "Brake Pad"
+    part_number:
+     type: string
+     example: "BP-2024-001"
+    price:
+     type: number
+     format: float
+     example: 45.99
+    quantity:
+     type: integer
+     example: 50
+    created_at:
+     type: string
+     format: date-time
+    updated_at:
+     type: string
+     format: date-time
+    service_tickets:
+     type: array
+     items:
+      $ref: "#/components/schemas/ServiceTicket"
 security:
  - bearerAuth: []
 tags:
@@ -87,9 +189,38 @@ paths:
         password: password123
    responses:
     "200":
-     description: Successful response
+     description: Login successful
      content:
-      application/json: {}
+      application/json:
+       schema:
+        type: object
+        properties:
+         token:
+          type: string
+          example: "eyJ0eXAiOiJKV1QiLCJhbGc..."
+         user:
+          type: object
+          properties:
+           id:
+            type: integer
+            example: 1
+           name:
+            type: string
+            example: "John Doe"
+           email:
+            type: string
+            format: email
+            example: "john@example.com"
+    401:
+     description: Invalid credentials
+     content:
+      application/json:
+       schema:
+        type: object
+        properties:
+         error:
+          type: string
+          example: "Invalid email or password"
  /users/1:
   put:
    tags:
@@ -138,9 +269,54 @@ paths:
       example: "10"
    responses:
     "200":
-     description: Successful response
+     description: List of service tickets
      content:
-      application/json: {}
+      application/json:
+       schema:
+        type: object
+        properties:
+         tickets:
+          type: array
+          items:
+           $ref: "#/components/schemas/ServiceTicket"
+         total:
+          type: integer
+          example: 50
+         pages:
+          type: integer
+          example: 5
+         current_page:
+          type: integer
+          example: 1
+         per_page:
+          type: integer
+          example: 10
+         has_next:
+          type: boolean
+          example: true
+         has_prev:
+          type: boolean
+          example: false
+    401:
+     description: Unauthorized
+     content:
+      application/json:
+       schema:
+        type: object
+        properties:
+         msg:
+          type: string
+          example: "Missing JWT token"
+    403:
+     description: Forbidden
+     content:
+      application/json:
+       schema:
+        type: object
+        properties:
+         message:
+          type: string
+          example: "Insufficient permissions"
   post:
    tags:
     - Service Tickets
